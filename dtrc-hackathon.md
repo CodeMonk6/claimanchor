@@ -68,9 +68,9 @@ There should be only two people in your team. Each team submits a GitHub reposit
 include proof that the agent works. Reviewers read the repositories to understand what each
 agent does and to check that it can be deployed in our system. Selected agents will then be
 deployed and run by our team, so your agent has to actually work when deployed in the
-AgenticNetwork. Make the README the front door.
+AgenticNetwork. Make the README the front door. You will be able to work on this agent until 6:00 PM, Wednesday, July 22nd. 
 
-Please share your repo with mdan@wustl.edu and adith@wustl.edu. 
+Please email and share your github repo with mdan@wustl.edu and adith@wustl.edu. Both Dan and Adith will need to be able to clone your repo.
 
 Your README should clearly answer:
 
@@ -100,4 +100,6 @@ And, for the Repo Feedback score:
 A great agent should not only answer a prompt; it should help a researcher move a real task
 forward. Winning projects should feel useful, trustworthy, and integrated.
 
-There will prizes for the top two teams. 
+There will be prizes for the top two teams. 
+
+Please direct any questions to mdan@wustl.edu and adith@wustl.edu. 
