@@ -22,6 +22,21 @@ clean clone of the starter template.
 | 7 | `a2a-sdk==0.3.2` pin undocumented | [issue #7](https://github.com/washu-dev/agent-skeleton/issues/7) |
 | 8 | Reserved-name ambiguity (`*.card.json`) | [issue #8](https://github.com/washu-dev/agent-skeleton/issues/8) |
 
+Additional issues found while working through the template internals, filed with full
+Repro / Expected / Actual / Fix detail on each linked issue:
+
+| # | Finding | Sev | Filed as |
+|---|---|---|---|
+| 9  | `serve-handler` minimal card advertises the undialable `0.0.0.0` bind wildcard | med | [issue #14](https://github.com/washu-dev/agent-skeleton/issues/14) · **[PR #23](https://github.com/washu-dev/agent-skeleton/pull/23)** |
+| 10 | `HandlerExecutor` orphans the handler coroutine on cancel (compute + credential retention) | med | [issue #15](https://github.com/washu-dev/agent-skeleton/issues/15) |
+| 11 | `HandlerExecutor` hangs the task in `working` on a non-dict / non-string `answer` return | med | [issue #16](https://github.com/washu-dev/agent-skeleton/issues/16) · **[PR #24](https://github.com/washu-dev/agent-skeleton/pull/24)** |
+| 12 | Step-cap exhaustion returns an empty answer, discarding gathered tool results | med | [issue #17](https://github.com/washu-dev/agent-skeleton/issues/17) |
+| 13 | `a2a` protocol path silently drops the model-supplied `payload` | med | [issue #18](https://github.com/washu-dev/agent-skeleton/issues/18) |
+| 14 | `require_a2a()` install hint omits the required `[http-server]` extra | low | [issue #19](https://github.com/washu-dev/agent-skeleton/issues/19) |
+| 15 | Non-numeric `AGENT_A2A_PORT` crashes startup with an opaque error | low | [issue #20](https://github.com/washu-dev/agent-skeleton/issues/20) · **[PR #25](https://github.com/washu-dev/agent-skeleton/pull/25)** |
+| 16 | `calculator` preset can return non-JSON-serializable `complex`/`inf`/`nan` | low | [issue #21](https://github.com/washu-dev/agent-skeleton/issues/21) · **[PR #26](https://github.com/washu-dev/agent-skeleton/pull/26)** |
+| 17 | `validate_tool_registry` doesn't validate the schema envelope (`type` / `parameters.type`) | low | [issue #22](https://github.com/washu-dev/agent-skeleton/issues/22) · **[PR #27](https://github.com/washu-dev/agent-skeleton/pull/27)** |
+
 ---
 
 ## 1. `.gitignore` does not ignore `.env` — credential‑leak risk (security) — **Fixed**
