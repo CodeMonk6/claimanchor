@@ -73,6 +73,14 @@ def test_normalize_doi():
     assert rt.normalize_doi(None) is None
 
 
+def test_normalize_doi_paste_formats():
+    for raw in (
+        "http://dx.doi.org/10.1/x", "https://dx.doi.org/10.1/x", "https://doi.org/10.1/x",
+        "http://doi.org/10.1/x", "doi.org/10.1/x", "www.doi.org/10.1/x", "doi:10.1/x", "10.1/x",
+    ):
+        assert rt.normalize_doi(raw) == "10.1/x", raw
+
+
 def test_title_similarity():
     assert rt._title_similarity("Statins reduce mortality", "Statins reduce mortality") == 1.0
     assert rt._title_similarity("apple orange banana", "kiwi mango grapefruit") == 0.0

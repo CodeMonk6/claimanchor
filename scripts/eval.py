@@ -132,7 +132,7 @@ def run(resolver) -> int:
     print("-" * 96)
     print(f"exact-match accuracy : {correct}/{n} = {correct / n:.0%}")
     print(f"bad-citation recall  : {recall:.0%}   (fraction of fabricated/hijacked/retracted correctly excluded)")
-    print(f"kept-source precision: {precision:.0%}   (fraction of kept sources that were genuinely valid)")
+    print(f"exclusion precision  : {precision:.0%}   (fraction of excluded sources that were genuinely bad)")
     print(f"confusion            : TP={tp} FP={fp} FN={fn} TN={tn}")
     if fn:
         print("\nFAIL: a fabricated/retracted citation was accepted as support (FN>0).")

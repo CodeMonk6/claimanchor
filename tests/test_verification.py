@@ -166,6 +166,36 @@ def test_supporting_quote_grounding_flags_invented_quote():
     assert "could not be located" in by["invented"].get("verification_note", "")
 
 
+def test_verify_doi_mismatch_is_not_promoted_to_ledger():
+    led = ProvenanceLedger()
+    # resolves but title-mismatched (verified False) must NOT enter the ledger, or it
+    # would fast-path past the title-mismatch gate in verify_report.
+    led.add_from_tool("verify_doi", {"ok": True, "resolves": True, "verified": False, "doi": "10.1/mismatch"})
+    assert not led.has_doi("10.1/mismatch")
+    # a resolved AND verified DOI does enter the ledger.
+    led.add_from_tool("verify_doi", {"ok": True, "resolves": True, "verified": True, "doi": "10.1/good"})
+    assert led.has_doi("10.1/good")
+
+
+def test_retracted_source_cited_by_pmid_is_excluded():
+    led = ProvenanceLedger()
+    # a search result carries both a PMID and a DOI …
+    led.add_from_tool("search_literature", {"ok": True, "results": [
+        {"doi": "10.1000/retracted", "pmid": "999", "title": "Retracted Paper"},
+    ]})
+    report = {
+        "report_markdown": "Claim [S1].",
+        "claims": [{"claim": "C", "verdict": "supported", "confidence": "high",
+                    "source_ids": ["S1"], "supporting_quote": ""}],
+        "sources": [{"id": "S1", "pmid": "999", "title": "Retracted Paper"}],  # cited by PMID only
+        "overall_confidence": "high",
+    }
+    out = verify_report(report, led, resolver=_integrity_resolver)
+    # the recovered DOI is retracted, so the PMID-only source must be excluded too.
+    assert not any(s["id"] == "S1" for s in out["sources"])
+    assert out["claims"][0]["verdict"] == "source_not_found"
+
+
 def test_empty_report_yields_answer_and_no_sources():
     out = verify_report({}, ProvenanceLedger(), resolver=_fake_resolver)
     assert "answer" in out

@@ -69,6 +69,22 @@ def _quote_is_grounded(quote: str | None, abstracts: list[str]) -> bool | None:
     return False if checkable else None
 
 
+def _recover_doi_for_id(ledger: "ProvenanceLedger", src: dict) -> str | None:
+    """Best-effort DOI for a source cited by PMID/PMCID only, so it can still be
+    integrity-checked: find a ledger record carrying the same PMID/PMCID that has a DOI."""
+    pmid = str(src["pmid"]) if src.get("pmid") else None
+    pmcid = str(src["pmcid"]).upper() if src.get("pmcid") else None
+    for rec in ledger.records.values():
+        rdoi = normalize_doi(rec.get("doi"))
+        if not rdoi:
+            continue
+        if pmid and str(rec.get("pmid")) == pmid:
+            return rdoi
+        if pmcid and str(rec.get("pmcid") or "").upper() == pmcid:
+            return rdoi
+    return None
+
+
 class ProvenanceLedger:
     """Records every real identifier the tools surfaced during a session.
 
@@ -107,8 +123,10 @@ class ProvenanceLedger:
             self._add_record(rec)
         if isinstance(result.get("record"), dict):
             self._add_record(result["record"])
-        # verify_doi: a DOI that resolves is real provenance even without a record.
-        if name == "verify_doi" and result.get("resolves"):
+        # verify_doi: a DOI that resolves AND matches the claimed title is real
+        # provenance. A resolves-but-mismatched DOI must NOT be promoted here, or it
+        # would fast-path past verify_report's title-mismatch gate and be kept.
+        if name == "verify_doi" and result.get("resolves") and result.get("verified", True):
             doi = normalize_doi(result.get("doi"))
             if doi:
                 self.dois.add(doi)
@@ -200,22 +218,28 @@ def verify_report(
         # Integrity gate: a real, resolvable paper that has been RETRACTED (or
         # withdrawn / flagged with an expression of concern) must never support a
         # claim. Crossref carries Retraction Watch data on the record's `updated-by`.
-        if ok and doi:
-            if res is None:                              # ledger fast-path: fetch integrity
-                res = _safe_resolve(resolver, doi)
-            integrity = (res or {}).get("integrity_status", "ok")
-            if integrity and integrity != "ok":
-                src["integrity_status"] = integrity
-                src["integrity_detail"] = (res or {}).get("integrity_detail")
-                src["verification"] = "retracted"
-                src["reason"] = (
-                    f"source is {integrity} (Crossref / Retraction Watch): "
-                    f"{src['integrity_detail'] or 'flagged'} — excluded from support."
-                )
-                retracted_ids.add(sid)
-                ok = False
+        # A source cited by PMID/PMCID only is checked via a recovered DOI when one is
+        # known; otherwise its integrity is marked unverified rather than assumed clean.
+        if ok:
+            integ_doi = doi or _recover_doi_for_id(ledger, src)
+            if integ_doi:
+                if res is None:                          # ledger fast-path: fetch integrity
+                    res = _safe_resolve(resolver, integ_doi)
+                integrity = (res or {}).get("integrity_status", "ok")
+                if integrity and integrity != "ok":
+                    src["integrity_status"] = integrity
+                    src["integrity_detail"] = (res or {}).get("integrity_detail")
+                    src["verification"] = "retracted"
+                    src["reason"] = (
+                        f"source is {integrity} (Crossref / Retraction Watch): "
+                        f"{src['integrity_detail'] or 'flagged'} — excluded from support."
+                    )
+                    retracted_ids.add(sid)
+                    ok = False
+                else:
+                    src["integrity_status"] = "ok"
             else:
-                src["integrity_status"] = "ok"
+                src["integrity_status"] = "unverified"   # no DOI to check retraction against
 
         if ok:
             verified.append(src)
@@ -258,6 +282,7 @@ def verify_report(
         # tool returned for one of the kept sources — the same structural rigor applied
         # to DOIs, extended to the evidence text.
         quote = c.get("supporting_quote", "") or ""
+        confidence = c.get("confidence", "low")
         abstracts = [
             rec["abstract"]
             for s in kept
@@ -270,13 +295,18 @@ def verify_report(
             quote_flag = {"quote_grounded": False}
             extra = "Supporting quote could not be located in the retrieved abstract; treat it as unverified."
             note = f"{note} {extra}".strip() if note else extra
+            # An ungrounded quote on an otherwise-supported claim is a real trust hit:
+            # cap its confidence and count it so overall confidence is downgraded too.
+            if verdict in ("supported", "partially_supported"):
+                confidence = "low"
+                adjustments += 1
         elif grounded is True:
             quote_flag = {"quote_grounded": True}
 
         clean_claims.append({
             "claim": c.get("claim", ""),
             "verdict": verdict,
-            "confidence": c.get("confidence", "low"),
+            "confidence": confidence,
             "source_ids": kept,
             "supporting_quote": quote,
             **quote_flag,

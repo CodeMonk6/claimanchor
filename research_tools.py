@@ -93,7 +93,11 @@ def _get_json(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> dict:
         out = {"ok": False, "status": None, "error": f"could not parse response: {exc}"}
     except Exception as exc:  # last-resort guard — a tool must never crash the loop
         out = {"ok": False, "status": None, "error": f"unexpected error: {exc}"}
-    _cache[url] = out
+    # Cache only definitive results. Caching a transient failure (timeout / 5xx / 429 /
+    # parse error) would poison this URL for the whole process on a long-lived server,
+    # dropping a resolvable paper on later requests; a 404 is definitive, so cache it.
+    if out.get("ok") or out.get("status") == 404:
+        _cache[url] = out
     return out
 
 
@@ -103,9 +107,18 @@ def normalize_doi(doi: str | None) -> str | None:
     if not doi:
         return None
     d = str(doi).strip().lower()
-    for prefix in ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "doi:"):
+    if d.startswith("doi:"):
+        d = d[4:].strip()
+    # Strip a leading resolver host in any common paste form (scheme optional, www
+    # optional, doi.org or dx.doi.org). Longest/most-specific hosts first.
+    for prefix in (
+        "https://dx.doi.org/", "http://dx.doi.org/", "https://www.doi.org/",
+        "http://www.doi.org/", "https://doi.org/", "http://doi.org/",
+        "dx.doi.org/", "www.doi.org/", "doi.org/",
+    ):
         if d.startswith(prefix):
             d = d[len(prefix):]
+            break
     d = d.strip()
     return d or None
 

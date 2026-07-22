@@ -119,7 +119,7 @@ case on their own. No language model and no API key are involved.
 |---|---|
 | Exact‑match accuracy | **8 / 8 (100%)** |
 | Bad‑citation recall — fabricated / hijacked / retracted correctly excluded | **100%** |
-| Kept‑source precision — kept sources that were genuinely valid | **100%** |
+| Exclusion precision — excluded sources that were genuinely bad | **100%** |
 
 Every fabricated DOI is dropped, every retracted paper is excluded from support (and
 its claim downgraded to `source_not_found`), the title‑hijacked DOI is caught, and
