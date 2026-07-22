@@ -1,13 +1,13 @@
 {
-  "name": "Skeleton Agent",
-  "description": "A template A2A agent that answers requests and can call simple text tools. Replace this with your agent's real capabilities.",
+  "name": "ClaimAnchor",
+  "description": "Biomedical evidence-verification agent for WashU researchers. Given a claim, a paragraph with citations, a reference list/DOIs, or a research question, it retrieves the real literature (Europe PMC, PubMed, Crossref, Unpaywall), judges whether each claim is actually supported, verifies every DOI resolves and matches, flags retracted papers via Crossref/Retraction Watch, checks that each supporting quote is grounded in the retrieved abstract, and returns a per-claim verdict with supporting quotes plus a reusable JSON evidence graph. It cites only sources returned by live database calls and never fabricates references.",
   "url": "http://127.0.0.1:9110/",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "protocolVersion": "0.3.0",
   "preferredTransport": "JSONRPC",
   "provider": {
-    "organization": "Your Org",
-    "url": "https://example.invalid/your-org"
+    "organization": "ClaimAnchor (WashU DTRC)",
+    "url": "https://github.com/CodeMonk6/claimanchor"
   },
   "capabilities": {
     "streaming": true,
@@ -20,13 +20,43 @@
   "security": [],
   "skills": [
     {
-      "id": "skeleton/answer",
-      "name": "Answer a request",
-      "description": "Answer a natural-language request, optionally using helper tools, and return a structured answer.",
-      "tags": ["skeleton/answer", "skeleton", "demo", "read"],
+      "id": "claimanchor/verify-claims",
+      "name": "Verify research claims against the literature",
+      "description": "Given a factual biomedical claim or a manuscript paragraph with inline citations, retrieve the real literature and return, per claim, a verdict (supported | partially_supported | unsupported | source_not_found) with a supporting quote, a verified DOI, and a confidence level. Abstains rather than fabricating support.",
+      "tags": ["biomedical", "citation-verification", "evidence-synthesis", "retrieval-augmented", "fact-checking", "nlp", "analytical", "rag"],
       "examples": [
-        "How many words are in 'the quick brown fox'?",
-        "Reverse the text 'hello world' and upper-case it."
+        "Verify this sentence before I submit my R01: 'GLP-1 receptor agonists reduce major adverse cardiovascular events in patients with type 2 diabetes.'",
+        "Check every claim in this Introduction paragraph and tell me which ones the cited papers actually support.",
+        "Is it established that intermittent fasting improves insulin sensitivity in humans? Give me the evidence."
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["text/plain", "application/json"],
+      "security": []
+    },
+    {
+      "id": "claimanchor/validate-citations",
+      "name": "Validate a reference list or DOIs",
+      "description": "Given a reference list, a set of DOIs, or citations copied from a draft, resolve each against Crossref and confirm it exists and matches the described finding. Flags fabricated, mis-matched (identifier-hijacked), or retracted references — retractions/withdrawals/expressions of concern are detected from Crossref's Retraction Watch data — so they can be fixed before submission.",
+      "tags": ["biomedical", "citation-validation", "doi-resolution", "crossref", "retraction-watch", "integrity", "analytical", "rag"],
+      "examples": [
+        "Do these five DOIs from my references section actually exist and match the papers I cited them as?",
+        "My co-author pasted these references from a chatbot — which ones are real?",
+        "Are any of the papers in this reference list retracted?",
+        "Validate the reference list in this .bib file against Crossref."
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["text/plain", "application/json"],
+      "security": []
+    },
+    {
+      "id": "claimanchor/evidence-synthesis",
+      "name": "Answer a biomedical question with verified citations",
+      "description": "Given a biomedical research question, retrieve real papers, synthesize a grounded answer citing only retrieved sources, surface contradicting evidence, and state coverage limitations. Returns a human-readable synthesis plus a structured evidence graph another agent can reuse.",
+      "tags": ["biomedical", "literature-review", "evidence-synthesis", "grounded-generation", "retrieval-augmented", "nlp", "analytical", "rag"],
+      "examples": [
+        "Summarize the current evidence on SGLT2 inhibitors for heart failure with preserved ejection fraction, with citations I can verify.",
+        "What does the literature say about the association between sleep duration and Alzheimer's risk? Include any contradicting studies.",
+        "Find the strongest recent randomized trials on semaglutide for weight loss and give me the DOIs."
       ],
       "inputModes": ["text/plain", "application/json"],
       "outputModes": ["text/plain", "application/json"],

@@ -115,6 +115,8 @@ def build_parser() -> argparse.ArgumentParser:
     handler.add_argument("--name", default=None, help="Agent name (defaults to the class name).")
     handler.add_argument("--description", default="", help="One-line description for the card.")
     handler.add_argument("--card", type=Path, default=None, help="Optional card file (else a minimal one is built).")
+    handler.add_argument("--advertise-url", default=env_advertise_url(),
+                         help="Public JSON-RPC URL to advertise in the card (defaults to AGENT_A2A_URL).")
     return parser
 
 
@@ -149,9 +151,14 @@ def _serve_handler(args: argparse.Namespace) -> None:
     handler = handler_class({})  # AgentHandler.__init__(config) — non-secret config
     executor = HandlerExecutor(handler)
 
-    url = f"http://{args.host}:{args.port}/"
+    url = args.advertise_url or f"http://{args.host}:{args.port}/"
     if args.card is not None:
         card = load_agent_card(args.card)
+        if args.advertise_url:   # advertise the deployment URL, not the loopback in the file
+            try:
+                card = card.model_copy(update={"url": args.advertise_url})
+            except AttributeError:
+                card.url = args.advertise_url
     else:
         card = _minimal_handler_card(args.name or handler_class.__name__, args.description, url)
 

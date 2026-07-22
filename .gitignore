@@ -3,3 +3,25 @@ __pycache__/
 *.egg-info/
 .venv/
 .DS_Store
+
+# Secrets — never commit real credentials. Use .env.example as the template.
+.env
+.env.*
+!.env.example
+
+# Markdown untracked by default; ship WHAT was built, not HOW.
+# Product/reference docs are force-kept; add a `!<file>.md` negation for any new
+# doc you want committed. The private memory/harness below is never shipped.
+*.md
+!README.md
+!FEEDBACK.md
+!INTEGRATION_GUIDE.md
+!HACKATHON_CHEATSHEET.md
+!dtrc-hackathon.md
+!endpoint_wrapper/README.md
+
+# Private development harness & project memory — NEVER commit (reveals "how").
+.claude/
+docs/
+CLAUDE.md
+

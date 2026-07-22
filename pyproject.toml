@@ -9,10 +9,14 @@ requires-python = ">=3.11"
 dependencies = [
     # A2AStarletteApplication needs starlette + sse-starlette (+ fastapi), which
     # live in a2a-sdk's optional `http-server` extra. Pin exactly: newer a2a-sdk
-    # releases moved a2a.server.apps. Only needed to SERVE — the Path-A engine and
+    # releases moved a2a.server.apps. Only needed to SERVE — the engine and
     # `serve check` import and run without it (see a2a_runtime's import guard).
     "a2a-sdk[http-server]==0.3.2",
-    "openai>=1.40",
+    # ClaimAnchor drives Claude through the official Anthropic SDK (Path B handler).
+    # Only needed to actually run the agent; imports are lazy so `serve check` and
+    # the offline test suite run on the standard library alone.
+    "anthropic>=0.116",
+    "openai>=1.40",   # retained for the template's Path-A engine (unused by ClaimAnchor)
     "uvicorn>=0.30",
 ]
 

@@ -8,15 +8,17 @@ import os
 from pathlib import Path
 
 # --- Identity -------------------------------------------------------------
-AGENT_NAME = "Skeleton Agent"     # ★ set to your agent's name
+AGENT_NAME = "ClaimAnchor"          # biomedical claim & citation verification agent
 
 # --- Networking -----------------------------------------------------------
 DEFAULT_HOST = "0.0.0.0"          # bind address (listen on all interfaces)
 DEFAULT_PORT = 9110               # pick a free port
 
 # --- LLM ------------------------------------------------------------------
-DEFAULT_MODEL = "gpt-4o-mini"     # hosted model name, or your vLLM --served-model-name
-MAX_TOOL_STEPS = 4                # cap on tool-call loop iterations
+# ClaimAnchor runs on Claude via the official Anthropic SDK (see handler.py).
+# Override at deploy time with the AGENT_MODEL env var.
+DEFAULT_MODEL = "claude-opus-4-8"  # Anthropic model id
+MAX_TOOL_STEPS = 8                # cap on tool-call loop iterations
 
 # --- Paths ----------------------------------------------------------------
 PACKAGE_DIR = Path(__file__).resolve().parent
