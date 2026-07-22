@@ -17,18 +17,18 @@ AgenticNetwork / A2A starter template (Path B: a custom `AgentHandler` driving
 
 ## Why this, and why now
 
-General chatbots fabricate scientific citations at alarming rates — independent
+General chatbots fabricate scientific citations at high rates — independent
 studies report **40–90%** of generated references are wrong or invented, and the
 CiteME benchmark finds frontier LLMs identify the correct paper to cite only
 **4–18%** of the time (versus ~70% for humans). Even retrieval‑augmented "deep
 research" tools still surface unverifiable DOIs. A researcher can't safely paste
 any of that into an R01 or a manuscript.
 
-ClaimAnchor closes that gap by construction: the model is allowed to cite **only**
-what the retrieval tools returned this session, and a deterministic pass then
-re‑checks every citation against a provenance ledger and a live Crossref lookup,
-dropping anything it can't verify. "No fabricated citations" is a property of the
-output, not a hope.
+ClaimAnchor closes that gap by design: the model is only allowed to cite what the
+retrieval tools returned this session, and a deterministic pass then re‑checks every
+citation against a provenance ledger and a live Crossref lookup, dropping anything it
+can't verify. So "no fabricated citations" is something the output guarantees, not
+something we just hope for.
 
 Two things set it apart from grounded search tools (Elicit, Consensus, Scite): it
 verifies references **you or another agent already have** — the after‑the‑fact check

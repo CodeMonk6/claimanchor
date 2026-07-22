@@ -1,8 +1,8 @@
 """System prompt + tool schemas for the ClaimAnchor biomedical verification agent.
 
 The prompt encodes the anti-fabrication contract in natural language; the code in
-``verification.py`` enforces it deterministically. Both layers matter: the prompt
-keeps the model on-task, the code makes the guarantee real.
+``verification.py`` enforces it deterministically. The prompt keeps the model
+on-task; the code is what actually enforces it.
 """
 from __future__ import annotations
 

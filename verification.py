@@ -1,8 +1,8 @@
 """Deterministic anti-fabrication layer for ClaimAnchor.
 
-The LLM is instructed to cite only what the tools returned, but instructions are
-not a guarantee. This module makes the guarantee *structural*: every citation in
-the model's final report is checked, in code, against
+The LLM is told to cite only what the tools returned, but a prompt can't enforce
+that. This module enforces it in code: every citation in the model's final report
+is checked against
 
   1. a **provenance ledger** of identifiers that real tool calls actually returned
      this session, and
@@ -10,8 +10,8 @@ the model's final report is checked, in code, against
 
 Any citation that is neither in the ledger nor independently resolvable is moved
 to ``unverified_sources`` and stripped from the claims it supported — so a
-hallucinated DOI can never survive into the answer. This is the feature that
-turns "no fabricated citations" from a hope into a property of the output.
+hallucinated DOI can never survive into the answer, regardless of what the model
+claims in its prose.
 """
 from __future__ import annotations
 
@@ -279,8 +279,8 @@ def verify_report(
             adjustments += 1
 
         # Supporting-quote grounding: the quote must actually appear in an abstract a
-        # tool returned for one of the kept sources — the same structural rigor applied
-        # to DOIs, extended to the evidence text.
+        # tool returned for one of the kept sources — the same existence check we apply
+        # to DOIs, applied here to the quote text.
         quote = c.get("supporting_quote", "") or ""
         confidence = c.get("confidence", "low")
         abstracts = [
