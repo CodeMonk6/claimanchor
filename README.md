@@ -230,7 +230,7 @@ python scripts/smoke_test.py          # checks real APIs, then a full claim-veri
 
 ---
 
-## What the README must answer (per the hackathon rubric)
+## What the README Answers
 
 **1. What research workflow does it improve?**
 The pre‑submission evidence check. Before sending a grant or manuscript, a
