@@ -2,14 +2,25 @@
 
 Findings from building ClaimAnchor on the `agent_skeleton` starter template, with
 reproduction steps, expected vs. actual behavior, and environment. Ordered by
-impact. Items marked **Fixed** include a change already applied in this
-submission; the rest are ready to file against the upstream repo.
+impact. Items marked **Fixed** include a change already applied in this submission
+and contributed back as a pull request.
 
 **Environment:** macOS (Darwin 25.5.0), Python 3.14.6, `a2a-sdk` pinned `0.3.2`,
 clean clone of the starter template.
 
-> Issue/PR links: `<add once the upstream starter‑repo URL is provided>` — please
-> share the canonical GitHub location so these can be filed there.
+**All findings are filed against
+[`washu-dev/agent-skeleton`](https://github.com/washu-dev/agent-skeleton):**
+
+| # | Finding | Filed as |
+|---|---|---|
+| 1 | `.gitignore` doesn't ignore `.env` (secret-leak) | [issue #9](https://github.com/washu-dev/agent-skeleton/issues/9) · **[PR #10](https://github.com/washu-dev/agent-skeleton/pull/10)** |
+| 2 | No `.env.example` ships | [issue #2](https://github.com/washu-dev/agent-skeleton/issues/2) |
+| 3 | Submission-instruction contradiction | [issue #3](https://github.com/washu-dev/agent-skeleton/issues/3) |
+| 4 | Tests fail from a clean clone | [issue #4](https://github.com/washu-dev/agent-skeleton/issues/4) |
+| 5 | `serve-handler` ignores `AGENT_A2A_URL` (loopback) | [issue #5](https://github.com/washu-dev/agent-skeleton/issues/5) · **[PR #11](https://github.com/washu-dev/agent-skeleton/pull/11)** |
+| 6 | No-auth default (`0.0.0.0`, empty `securitySchemes`) | [issue #6](https://github.com/washu-dev/agent-skeleton/issues/6) |
+| 7 | `a2a-sdk==0.3.2` pin undocumented | [issue #7](https://github.com/washu-dev/agent-skeleton/issues/7) |
+| 8 | Reserved-name ambiguity (`*.card.json`) | [issue #8](https://github.com/washu-dev/agent-skeleton/issues/8) |
 
 ---
 
