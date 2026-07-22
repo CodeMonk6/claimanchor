@@ -150,6 +150,27 @@ def test_verify_doi_flags_retraction():
     assert out["integrity_detail"] and "10.1/notice" in out["integrity_detail"]
 
 
+def test_verify_doi_retraction_outranks_concern():
+    # A record with BOTH an expression of concern and a retraction must be labeled
+    # "retracted" (most severe), not "concern" — even if concern is listed first.
+    payload = {"message": {
+        "title": ["A paper later retracted"], "issued": {"date-parts": [[2020]]},
+        "type": "journal-article",
+        "updated-by": [
+            {"type": "expression_of_concern", "label": "Expression of concern", "DOI": "10.1/eoc",
+             "updated": {"date-parts": [[2020]]}},
+            {"type": "retraction", "label": "Retraction", "DOI": "10.1/retr",
+             "updated": {"date-parts": [[2020]]}},
+        ],
+    }}
+    p1, p2 = _combo({"api.crossref.org": payload})
+    rt._reset_caches()
+    with p1, p2:
+        out = rt.verify_doi("10.1/both")
+    assert out["integrity_status"] == "retracted"
+    assert "10.1/retr" in out["integrity_detail"]
+
+
 def test_verify_doi_clean_record_is_ok():
     payload = {"message": {"title": ["A clean paper"], "issued": {"date-parts": [[2021]]},
                            "type": "journal-article"}}

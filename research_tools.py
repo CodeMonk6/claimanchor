@@ -245,14 +245,23 @@ def _detect_integrity(msg: dict) -> tuple[str, str | None]:
         blocking.append((t, f"{label}{f' ({yr})' if yr else ''}", u.get("DOI")))
     if not blocking:
         return "ok", None
-    t0 = blocking[0][0]
-    status = (
-        "retracted" if "retract" in t0 else
-        "withdrawn" if "withdraw" in t0 else
-        "removed" if "removal" in t0 else
-        "concern" if "concern" in t0 else
-        "retracted"
-    )
+
+    def _status_of(t: str) -> str:
+        if "retract" in t:
+            return "retracted"
+        if "withdraw" in t:
+            return "withdrawn"
+        if "removal" in t:
+            return "removed"
+        if "concern" in t:
+            return "concern"
+        return "retracted"
+
+    # A record can carry several notices (e.g. an expression of concern AND a
+    # retraction). Report the most severe so a retracted paper is never merely
+    # labeled "concern".
+    _severity = {"retracted": 0, "withdrawn": 1, "removed": 2, "concern": 3}
+    status = min((_status_of(t) for t, _, _ in blocking), key=lambda s: _severity.get(s, 9))
     detail = "; ".join(f"{lab} — notice {doi}" if doi else lab for _, lab, doi in blocking)
     return status, detail
 

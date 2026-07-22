@@ -132,6 +132,63 @@ python scripts/eval.py --offline  # deterministic, no network
 
 ---
 
+## Run it without a hosted API key
+
+ClaimAnchor talks to its model through the Anthropic SDK, which honors
+`ANTHROPIC_BASE_URL` — so it runs against **any** Anthropic‑compatible endpoint, hosted
+key or not. Two ways to exercise the full pipeline:
+
+**1. Reproducible demo (no key, no LLM).** A deterministic local backend drives the
+*real* tool loop against **live** Europe PMC / Crossref; it deliberately over‑claims so
+you can watch the verification layer keep the real source and drop the rest:
+
+```bash
+pip install -e .            # Anthropic SDK only — no API key
+python scripts/demo.py
+```
+
+```
+Per-claim verdicts (after verification):
+  • [supported       ] DNA has a double-helical structure
+  • [source_not_found] The MMR vaccine causes autism
+      ↳ All cited sources failed verification (1 retracted); downgraded ...
+  • [source_not_found] A fabricated claim backed by a non-existent citation
+Kept sources:  ✓ [S1] retrieved — 10.1038/171737a0
+Excluded:      ✗ [S2] RETRACTED — 10.1016/s0140-6736(97)11096-0
+               ✗ [S3] DROPPED   — 10.9999/…fake  (does not resolve on Crossref)
+verification_summary: sources_verified=1, sources_retracted=1, claims_adjusted=2
+DEMO: PASS — real kept, retracted + fabricated removed
+```
+
+**2. Bring your own reasoner (real model reasoning, still no hosted key).** Point the
+agent at any Anthropic‑compatible endpoint — a local LLM behind a proxy, an internal
+gateway, or `scripts/model_bridge.py` (which serves each turn from a file so an external
+model can drive the loop). An example run over a real manuscript check — the model turns
+came through a local bridge (no hosted key); **retrieval and verification are the
+production code against live Europe PMC / Crossref**:
+
+```
+Request: verify (1) "metformin is associated with reduced all-cause mortality in
+type 2 diabetes"; (2) "hydroxychloroquine reduces in-hospital COVID-19 mortality",
+cited to 10.1016/S0140-6736(20)31180-6; (3) a reference cited to 10.9999/…001.
+
+1. Metformin & all-cause mortality — SUPPORTED [S1]
+   supporting quote grounded in the retrieved abstract; source is a 2026 systematic
+   review (10.1177/15491684261462413), kept.
+2. Hydroxychloroquine reduces COVID-19 mortality — SOURCE_NOT_FOUND
+   the cited DOI resolves but Crossref / Retraction Watch shows it is RETRACTED —
+   excluded from support, claim downgraded.
+3. Sepsis reference 10.9999/…001 — UNSUPPORTED
+   DOI does not resolve on Crossref (fabricated).
+
+verification_summary: sources_verified=1, sources_retracted=1, sources_unverified=2
+```
+
+At judging time the deployment uses a hosted key; the runs above use a local endpoint
+purely to show the pipeline works end‑to‑end without one.
+
+---
+
 ## Quickstart
 
 ```bash
