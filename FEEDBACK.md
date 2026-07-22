@@ -31,15 +31,15 @@ clean clone of the starter template.
 - **Expected:** `.env` is ignored so a real key can't be committed.
 - **Actual:** `.gitignore` covers only `__pycache__/`, `*.pyc`, `*.egg-info/`,
   `.venv/`, `.DS_Store`. `.env` shows up as an untracked file and is one
-  `git add .` away from being committed — directly against the hackathon's "no
-  secrets committed" minimum bar.
+  `git add .` away from being committed — a real credential‑leak risk that "no secrets
+  committed" guidance is meant to prevent.
 - **Fix (applied):** added `.env` / `.env.*` (with `!.env.example`) to
   `.gitignore`.
 
 ## 2. No `.env.example` ships, though it is required — **Fixed**
 
 - **Repro:** clean clone → look for a secrets template.
-- **Expected:** a value‑less `.env.example` teams copy (the rubric requires one).
+- **Expected:** a value‑less `.env.example` teams copy to configure secrets safely.
 - **Actual:** none present; each team must invent the variable names.
 - **Fix (applied):** added `.env.example` documenting `ANTHROPIC_API_KEY`,
   `UNPAYWALL_EMAIL`, model/endpoint and A2A overrides.
@@ -80,7 +80,7 @@ clean clone of the starter template.
 - **Actual:** `serve-handler` has no `--advertise-url` flag and never reads
   `AGENT_A2A_URL`; with `--card` it serves the file's `url` verbatim
   (`http://127.0.0.1:9110/`), and the minimal card uses the local host:port. So the
-  two subcommands diverge, and a Path‑B agent — the hackathon's primary path —
+  two subcommands diverge, and a Path‑B agent — the primary deploy path —
   registers with a loopback URL and discovery silently fails.
 - **Fix (applied):** added `--advertise-url` to `serve-handler` (defaulting to
   `AGENT_A2A_URL`) and made it override the card `url`, matching `serve-a2a`.
@@ -107,9 +107,9 @@ clean clone of the starter template.
 
 - **Context:** `INTEGRATION_GUIDE.md` lists `*.card.json` (and `agent_skeleton/`,
   `Dockerfile`) as reserved names the system generates for the Custom‑agent **zip
-  upload** flow. But the hackathon's primary path is "organizers clone your GitHub
-  repo," where `agent.card.json` is expected to be present. It's unclear which rule
-  governs a GitHub submission. Suggest the guide clarify that the reserved‑name
+  upload** flow. But the primary deploy path is "clone the GitHub repo," where
+  `agent.card.json` is expected to be present. It's unclear which rule governs a
+  cloned repo. Suggest the guide clarify that the reserved‑name
   restriction applies to the upload flow only.
 
 ---

@@ -184,7 +184,7 @@ cited to 10.1016/S0140-6736(20)31180-6; (3) a reference cited to 10.9999/…001.
 verification_summary: sources_verified=1, sources_retracted=1, sources_unverified=2
 ```
 
-At judging time the deployment uses a hosted key; the runs above use a local endpoint
+In a normal deployment the agent uses a hosted key; the runs above use a local endpoint
 purely to show the pipeline works end‑to‑end without one.
 
 ---
@@ -230,60 +230,55 @@ python scripts/smoke_test.py          # checks real APIs, then a full claim-veri
 
 ---
 
-## What the README Answers
+## Who it's for and what it handles
 
-**1. What research workflow does it improve?**
-The pre‑submission evidence check. Before sending a grant or manuscript, a
-researcher pastes their claims, paragraph, or reference list and gets, per claim,
-whether the literature supports it, the strongest supporting (and contradicting)
-sources, and confirmation that every DOI is real and correctly cited — a task that
-is otherwise slow, manual, and error‑prone.
+**Target users.** School of Medicine investigators, postdocs, and clinician‑researchers
+preparing grants and manuscripts (WashU Medicine is #2 in NIH funding); research
+librarians supporting evidence synthesis; and anyone who needs to trust citations before
+submitting. It uses only public APIs, so it serves schools beyond Medicine too, with no
+institutional credentials required.
 
-**2. Who at WashU benefits?**
-School of Medicine investigators, postdocs, and clinician‑researchers preparing
-grants/manuscripts (WashU Medicine is #2 in NIH funding); research librarians
-supporting evidence synthesis; and any researcher who needs to trust citations
-before submitting. It uses only public APIs, so it serves schools beyond Medicine
-too, with no institutional credentials required.
+**The workflow it improves** is the pre‑submission evidence check: paste a claim, a
+paragraph with citations, or a reference list and get, per claim, whether the literature
+supports it, the strongest supporting (and contradicting) sources, and confirmation that
+every DOI is real and correctly cited — otherwise a slow, manual, error‑prone task.
 
-**3. What does it do that a general chatbot would not?**
-It cannot fabricate citations. Every reference is drawn from a live database call and
-re‑verified against Crossref in code; unverifiable citations are dropped and the
-affected claim is downgraded. It also flags **retracted** papers (Crossref /
-Retraction Watch) so a discredited study never counts as support, checks that each
-supporting quote actually appears in the retrieved abstract, abstains
-(`source_not_found`) rather than inventing support, and returns a machine‑reusable
-evidence graph — as a network‑callable A2A service other agents can delegate to.
+**Why not just use a chatbot.** ClaimAnchor cannot fabricate citations: every reference is
+drawn from a live database call and re‑verified against Crossref in code; unverifiable
+citations are dropped and the affected claim downgraded. It flags **retracted** papers
+(Crossref / Retraction Watch) so a discredited study never counts as support, checks that
+each supporting quote actually appears in the retrieved abstract, abstains
+(`source_not_found`) rather than inventing support, and returns a machine‑reusable evidence
+graph — as a network‑callable A2A service other agents can delegate to.
 
-**4. What is it designed to handle well?**
-- Verify a single claim or every claim in a paragraph (Skill: `verify-claims`).
-- Validate a reference list / DOIs — flag fabricated, mismatched, or retracted
-  references (Skill: `validate-citations`).
-- Answer a biomedical question with verified citations and surface contradictions
-  (Skill: `evidence-synthesis`).
-- Ambiguous/missing input (asks for a claim), empty results (abstains), rate
-  limits and network errors (degrade gracefully), and attached `.txt`/`.md`/`.bib`
-  documents.
+**What it handles well:**
+- Verify a single claim or every claim in a paragraph (skill: `verify-claims`).
+- Validate a reference list / DOIs — flag fabricated, mismatched, or retracted references
+  (skill: `validate-citations`).
+- Answer a biomedical question with verified citations and surface contradictions (skill:
+  `evidence-synthesis`).
+- Ambiguous or missing input (asks for a claim), empty results (abstains), rate limits and
+  network errors (degrades gracefully), and attached `.txt`/`.md`/`.bib` documents.
 
-**5. What tools, files, APIs, databases, or other agents does it use?**
+**What it uses:**
 - **LLM:** Claude Opus 4.8 via the official Anthropic SDK.
-- **Retrieval/verification (all free):** Europe PMC (search + abstracts + OA),
-  PubMed E‑utilities (coverage), Crossref (DOI truth source), Unpaywall (legal OA
-  links); OpenAlex as an optional metadata fallback.
-- **A2A:** deploys as a Path‑B `AgentHandler` behind the template's
-  `HandlerExecutor`; can also consume another agent's report/claim list as input.
+- **Retrieval/verification (all free):** Europe PMC (search + abstracts + OA), PubMed
+  E‑utilities (coverage), Crossref (DOI truth source), Unpaywall (legal OA links);
+  OpenAlex as an optional metadata fallback.
+- **A2A:** deploys as a Path‑B `AgentHandler` behind the template's `HandlerExecutor`; can
+  also consume another agent's report/claim list as input.
 
-**6. How does it handle uncertainty, privacy, credentials, and limitations?**
-- **Uncertainty:** per‑claim confidence + explicit abstention; overall confidence
-  is capped after any verification adjustment.
+**Uncertainty, privacy, and limitations:**
+- **Uncertainty:** per‑claim confidence plus explicit abstention; overall confidence is
+  capped after any verification adjustment.
 - **Privacy:** no PHI/EHR and no patient data — public bibliographic APIs only.
-- **Credentials:** `ANTHROPIC_API_KEY` (and optional keys) are read from the
-  deployment's credential configuration or environment; **never committed** (`.env`
-  is gitignored; `.env.example` is the template). Secrets are never logged.
-- **Limitations:** English‑language and indexing coverage; support judgments often
-  rely on the abstract when full text is paywalled; absence of a source is reported
-  as `source_not_found`, not disproof. ClaimAnchor assists verification — it does not
-  replace expert review. These limitations are also returned in every response.
+- **Credentials:** `ANTHROPIC_API_KEY` (and optional keys) are read from the deployment's
+  credential configuration or environment; **never committed** (`.env` is gitignored,
+  `.env.example` is the template). Secrets are never logged.
+- **Limitations:** English‑language and indexing coverage; support judgments often rely on
+  the abstract when full text is paywalled; absence of a source is reported as
+  `source_not_found`, not disproof. ClaimAnchor assists verification — it does not replace
+  expert review, and every response returns these limitations.
 
 ---
 
@@ -313,7 +308,7 @@ Files to read when reviewing the agent: `handler.py` (the agent),
 anti‑fabrication layer), `prompts_biomed.py` (system prompt + tool schemas),
 `agent.card.json` (identity + skills). Everything else is the frozen template.
 
-### Deployment notes for the AgenticNetwork team
+### Deployment notes
 
 - Import name is `agent_skeleton`; install with `pip install -e .`.
 - Provide `ANTHROPIC_API_KEY` via the credential config (declared type
