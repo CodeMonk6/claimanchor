@@ -20,7 +20,7 @@ An optional third path — fronting an existing HTTP/API endpoint with an LLM lo
 lives in the ``agent_skeleton.endpoint_wrapper`` subpackage (self-contained; see its
 own README).
 
-See README.md for the walkthrough and CLAUDE.md for working notes.
+See README.md for the walkthrough.
 
 Exposed API:
     AgentSpec, default_demo_spec, llm_wrapper_spec   — the Path-A spec engine

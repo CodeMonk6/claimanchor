@@ -91,8 +91,8 @@ clean clone of the starter template.
 - **Expected:** at least a prominent README warning, or an opt‑in auth scheme.
 - **Actual:** the app binds `0.0.0.0` with `securitySchemes: {}` and
   `security: []` — fine for local dev, but easy to expose an unauthenticated agent
-  when deployed. Flagged in `CLAUDE.md` gotchas but not in the README a deployer
-  reads first.
+  when deployed. Noted only in the repo's internal working notes, not in the README a
+  deployer reads first.
 
 ## 7. Exact `a2a-sdk==0.3.2` pin is correct but brittle and undocumented
 

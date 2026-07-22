@@ -9,9 +9,8 @@ __pycache__/
 .env.*
 !.env.example
 
-# Markdown untracked by default; ship WHAT was built, not HOW.
-# Product/reference docs are force-kept; add a `!<file>.md` negation for any new
-# doc you want committed. The private memory/harness below is never shipped.
+# Markdown is untracked by default; product/reference docs are force-kept below.
+# Add a `!<file>.md` negation for any new doc you want committed.
 *.md
 !README.md
 !FEEDBACK.md
@@ -19,9 +18,4 @@ __pycache__/
 !HACKATHON_CHEATSHEET.md
 !dtrc-hackathon.md
 !endpoint_wrapper/README.md
-
-# Private development harness & project memory — NEVER commit (reveals "how").
-.claude/
-docs/
-CLAUDE.md
 

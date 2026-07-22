@@ -15,7 +15,7 @@ Two rules the startup check enforces (tools.validate_tool_registry):
 
 So the schema and the Python signature are two views of one thing. (If you ever
 want this to be impossible to get wrong, generate these schemas FROM the typed
-functions instead — see CLAUDE.md "Closing the gap further".)
+functions instead, so they cannot disagree.)
 """
 from __future__ import annotations
 
